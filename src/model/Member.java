@@ -8,7 +8,7 @@ public class Member extends Person{
     private String membershipNumber;
     private List<Book> borrowedBooks;
 
-    public Member(int id, String firstName, String lastName, String address, String phone, String email, String membershipNumber) {
+    public Member(int id, String firstName, String lastName, String phone, String email, String membershipNumber) {
         super(id, firstName, lastName, phone, email);
         this.membershipNumber = membershipNumber;
         this.borrowedBooks = new ArrayList<>();
