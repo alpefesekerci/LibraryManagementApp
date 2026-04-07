@@ -19,7 +19,7 @@ public class MemberRepository {
         return memberList;
     }
 
-    Member getMemberByMembershipNumber(String membershipNumber) {
+    public Member getMemberByMembershipNumber(String membershipNumber) {
         for (Member member : memberList) {
             if (member.getMembershipNumber().equals(membershipNumber)) {
                 return member;
