@@ -12,19 +12,26 @@ public class ConsoleInputHelper {
     }
 
     public String getString(String prompt) {
-        System.out.print("➤ " + prompt + ": ");
-        return scanner.nextLine().trim();
+        while (true) {
+            System.out.print("➤ " + prompt + ": ");
+            String input = scanner.nextLine().trim();
+
+            if (!input.isEmpty()) {
+                return input;
+            }
+            System.out.println("❌ Input cannot be empty. Please enter a valid text.");
+        }
     }
 
     public int getInt(String prompt) {
         while (true) {
             try {
-                System.out.println("➤ " + prompt + ": ");
+                System.out.print("➤ " + prompt + ": ");
                 int value = scanner.nextInt();
                 scanner.nextLine();
                 return value;
             } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid integer.");
+                System.out.println("❌ Invalid input. Please enter a valid integer.");
                 scanner.nextLine();
             }
         }

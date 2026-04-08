@@ -59,61 +59,66 @@ public class ConsoleMenu {
                         Book book = new Book(isbn, title, author, pageCount);
                         ServiceResult result = libraryManager.addBook(book);
 
-                        if (result.isSuccess()) {
+                        printResult(result);
+
+                        /*if (result.isSuccess()) {
                             System.out.println("✅ " + result.getMessage());
                         } else {
                             System.out.println("❌ " + result.getMessage());
-                        }
+                        }*/
                         break;
 
                     case 2:
                         System.out.println("\n--- REGISTER NEW MEMBER ---");
 
                         int id = inputHelper.getInt("Enter Member ID");
-                        String membershipNumber = inputHelper.getString("Enter Membership Number");
                         String firstName = inputHelper.getString("Enter First Name");
                         String lastName = inputHelper.getString("Enter Last Name");
-                        String phone = inputHelper.getString("Enter Phone Number");
-                        String email = inputHelper.getString("Enter Email Address");
 
-                        Member member = new Member(id, firstName, lastName, phone, email, membershipNumber);
+                        Member member = new Member(id, firstName, lastName);
                         ServiceResult memberResult = libraryManager.registerMember(member);
 
-                        if (memberResult.isSuccess()) {
+                        printResult(memberResult);
+
+                        /*if (memberResult.isSuccess()) {
                             System.out.println("✅ " + memberResult.getMessage());
                         } else {
                             System.out.println("❌ " + memberResult.getMessage());
-                        }
+                        }*/
                         break;
 
                     case 3:
                         System.out.println("\n--- LENDING A BOOK ---");
 
                         String lendIsbn = inputHelper.getString("Enter Book ISBN");
-                        String lendMemberId = inputHelper.getString("Enter Membership Number");
+                        int lendMemberId = inputHelper.getInt("Enter Member ID");
 
                         ServiceResult lendResult = libraryManager.lendBook(lendIsbn, lendMemberId);
 
-                        if (lendResult.isSuccess()) {
+                        printResult(lendResult);
+
+                        /*if (lendResult.isSuccess()) {
                             System.out.println("✅ " + lendResult.getMessage());
                         } else {
                             System.out.println("❌ " + lendResult.getMessage());
-                        }
+                        }*/
                         break;
 
                     case 4:
                         System.out.println("\n--- RETURNING A BOOK ---");
 
                         String returnIsbn = inputHelper.getString("Enter Book ISBN");
-                        String returnMemberId = inputHelper.getString("Enter Membership Number");
+                        int returnMemberId = inputHelper.getInt("Enter Member ID");
 
                         ServiceResult returnResult = libraryManager.returnBook(returnIsbn, returnMemberId);
 
-                        if (returnResult.isSuccess()) {
+                        printResult(returnResult);
+
+                        /*if (returnResult.isSuccess()) {
                             System.out.println("✅ " + returnResult.getMessage());
                         } else {
                             System.out.println("❌ " + returnResult.getMessage());
-                        }
+                        }*/
                         break;
 
                     case 5:
@@ -123,10 +128,18 @@ public class ConsoleMenu {
                         if (books.isEmpty()) {
                             System.out.println("No books registered.");
                         } else {
+                            System.out.println("----------------------------------------------------------------------------------");
+                            System.out.printf("| %-10s | %-25s | %-20s | %-6s | %-9s |%n", "ISBN", "TITLE", "AUTHOR", "PAGES", "AVAILABLE");
+                            System.out.println("----------------------------------------------------------------------------------");
                             for (Book b : books) {
-                                System.out.println("ISBN: " + b.getIsbn() + " | Title: " + b.getTitle() +
-                                        " | Author: " + b.getAuthor() + " | Available: " + b.isAvailable());
+                                System.out.printf("| %-10s | %-25s | %-20s | %-6d | %-9s |%n",
+                                        b.getIsbn(),
+                                        truncate(b.getTitle(), 25),
+                                        truncate(b.getAuthor(), 20),
+                                        b.getPageCount(),
+                                        (b.isAvailable() ? "Yes" : "No"));
                             }
+                            System.out.println("----------------------------------------------------------------------------------");
                         }
                         break;
 
@@ -137,10 +150,17 @@ public class ConsoleMenu {
                         if (members.isEmpty()) {
                             System.out.println("No members registered.");
                         } else {
+                            System.out.println("-------------------------------------------------------------");
+                            System.out.printf("| %-5s | %-15s | %-15s | %-10s |%n", "ID", "FIRST NAME", "LAST NAME", "BOOKS HELD");
+                            System.out.println("-------------------------------------------------------------");
                             for (Member m : members) {
-                                System.out.println("ID: " + m.getId() + " | Membership Number: " + m.getMembershipNumber() +
-                                        " | Name: " + m.getFirstName() + " " + m.getLastName());
+                                System.out.printf("| %-5d | %-15s | %-15s | %-10d |%n",
+                                        m.getId(),
+                                        truncate(m.getFirstName(), 15),
+                                        truncate(m.getLastName(), 15),
+                                        m.getBorrowedBooks().size());
                             }
+                            System.out.println("-------------------------------------------------------------");
                         }
                         break;
 
@@ -156,16 +176,26 @@ public class ConsoleMenu {
                         libraryManager.saveSystemData();
                         System.out.println("Exiting the system. Goodbye!");
                         keepRunning = false;
-                        System.out.println("Exiting the system...");
                         break;
 
                     default:
-                        System.out.println("Invalid choice. Please try again.");
+                        System.out.println("❌ Invalid choice. Please try again.");
                 }
             } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                System.out.println("❌ Invalid input. Please enter a number.");
                 scanner.nextLine();
             }
         }
+    }
+    private void printResult(ServiceResult result) {
+        if (result.isSuccess()) {
+            System.out.println("✅ " + result.getMessage());
+        } else {
+            System.out.println("❌ " + result.getMessage());
+        }
+    }
+    private String truncate(String text, int maxLength) {
+        if (text.length() <= maxLength) return text;
+        return text.substring(0, maxLength - 3) + "...";
     }
 }

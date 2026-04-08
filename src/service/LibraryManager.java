@@ -26,8 +26,8 @@ public class LibraryManager {
     }
 
     public ServiceResult registerMember(Member member) {
-        if (memberRepository.getMemberByMembershipNumber(member.getMembershipNumber()) != null) {
-            return new ServiceResult(false, "Member with membership number " + member.getMembershipNumber() + " already exists.");
+        if (memberRepository.getMemberById(member.getId()) != null) {
+            return new ServiceResult(false, "Member with ID " + member.getId() + " already exists.");
         }
 
         if (member.getFirstName() == null || member.getFirstName().trim().isEmpty() ||
@@ -39,15 +39,15 @@ public class LibraryManager {
         return new ServiceResult(true, "Member " + member.getFirstName() + " " + member.getLastName() + " registered successfully.");
     }
 
-    public ServiceResult lendBook(String isbn, String membershipNumber) {
+    public ServiceResult lendBook(String isbn, int memberId) {
         Book book = bookRepository.getBookByIsbn(isbn);
-        Member member = memberRepository.getMemberByMembershipNumber(membershipNumber);
+        Member member = memberRepository.getMemberById(memberId);
 
         if (book == null) {
             return new ServiceResult(false, "Book with ISBN " + isbn + " not found.");
         }
         if (member == null) {
-            return new ServiceResult(false, "Member with membership number " + membershipNumber + " not found.");
+            return new ServiceResult(false, "Member with ID " + memberId + " not found.");
         }
         if (!book.isAvailable()) {
             return new ServiceResult(false, "Book with ISBN " + isbn + " is not available.");
@@ -58,23 +58,23 @@ public class LibraryManager {
         return new ServiceResult(true, "Book with ISBN " + isbn + " lent to member " + member.getFirstName() + " " + member.getLastName() + ".");
     }
 
-    public ServiceResult returnBook(String isbn, String membershipNumber) {
+    public ServiceResult returnBook(String isbn, int memberId) {
         Book book = bookRepository.getBookByIsbn(isbn);
-        Member member = memberRepository.getMemberByMembershipNumber(membershipNumber);
+        Member member = memberRepository.getMemberById(memberId);
 
         if (book == null) {
             return new ServiceResult(false, "Book with ISBN " + isbn + " not found.");
         }
         if (member == null) {
-            return new ServiceResult(false, "Member with membership number " + membershipNumber + " not found.");
+            return new ServiceResult(false, "Member with ID " + memberId + " not found.");
         }
         if (member.getBorrowedBooks().contains(book)) {
             book.setAvailable(true);
             member.getBorrowedBooks().remove(book);
-            return new ServiceResult(true, "Member with membership number " + membershipNumber + " does not have this book.");
+            return new ServiceResult(true, "Book with ISBN " + isbn + " successfully returned by " + member.getFirstName() + ".");
         }
 
-        return new ServiceResult(false, "Book with ISBN " + isbn + " returned to library.");
+        return new ServiceResult(false, "Member with ID " + memberId + " does not have this book.");
     }
 
     public List<Book> getAllBooks() {

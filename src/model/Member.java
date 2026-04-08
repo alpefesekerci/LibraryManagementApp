@@ -3,23 +3,12 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Member extends Person{
-
-    private String membershipNumber;
+public class Member extends Person {
     private List<Book> borrowedBooks;
 
-    public Member(int id, String firstName, String lastName, String phone, String email, String membershipNumber) {
-        super(id, firstName, lastName, phone, email);
-        this.membershipNumber = membershipNumber;
+    public Member(int id, String firstName, String lastName) {
+        super(id, firstName, lastName);
         this.borrowedBooks = new ArrayList<>();
-    }
-
-    public String getMembershipNumber() {
-        return membershipNumber;
-    }
-
-    public void setMembershipNumber(String membershipNumber) {
-        this.membershipNumber = membershipNumber;
     }
 
     public List<Book> getBorrowedBooks() {
@@ -33,9 +22,8 @@ public class Member extends Person{
     @Override
     public String toString() {
         return "Member{" +
-                "membershipNumber='" + membershipNumber + '\'' +
                 ", baseInfo=" + super.toString() +
-                ", borrowedBooks=" + borrowedBooks.size() +
+                ", borrowedBooksCount=" + borrowedBooks.size() +
                 '}';
     }
 }

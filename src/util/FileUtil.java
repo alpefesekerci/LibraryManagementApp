@@ -66,15 +66,12 @@ public class FileUtil {
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
                     // id, firstName, lastName, phone, email, membershipNumber
-                    if (data.length >= 6) {
+                    if (data.length >= 3) {
                         int id = Integer.parseInt(data[0]);
                         String firstName = data[1];
                         String lastName = data[2];
-                        String phone = data[3];
-                        String email = data[4];
-                        String membershipNumber = data[5];
 
-                        members.add(new Member(id, firstName, lastName, phone, email, membershipNumber));
+                        members.add(new Member(id, firstName, lastName));
                     }
                 }
             } catch (IOException | NumberFormatException e) {
@@ -86,8 +83,7 @@ public class FileUtil {
         public static void writeMembersToFile(List<Member> members) {
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(MEMBERS_FILE))) {
                 for (Member member : members) {
-                    bw.write(member.getId() + "," + member.getFirstName() + "," + member.getLastName() + "," +
-                            member.getPhone() + "," + member.getEmail() + "," + member.getMembershipNumber());
+                    bw.write(member.getId() + "," + member.getFirstName() + "," + member.getLastName() + "," );
                     bw.newLine();
                 }
             } catch (IOException e) {

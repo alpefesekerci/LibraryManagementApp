@@ -19,9 +19,9 @@ public class MemberRepository {
         return memberList;
     }
 
-    public Member getMemberByMembershipNumber(String membershipNumber) {
+    public Member getMemberById(int id) {
         for (Member member : memberList) {
-            if (member.getMembershipNumber().equals(membershipNumber)) {
+            if (member.getId() == id) {
                 return member;
             }
         }
