@@ -1,3 +1,6 @@
+library.txt
+members.txt
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/

@@ -5,14 +5,15 @@ import model.Book;
 import model.Member;
 import repository.BookRepository;
 import repository.MemberRepository;
+import java.util.List;
 
 public class LibraryManager {
-    private BookRepository bookRepository;
-    private MemberRepository memberRepository;
+    private final BookRepository bookRepository;
+    private final MemberRepository memberRepository;
 
     public LibraryManager(BookRepository bookRepository, MemberRepository memberRepository) {
-        this.bookRepository = new BookRepository();
-        this.memberRepository = new MemberRepository();
+        this.bookRepository = bookRepository;
+        this.memberRepository = memberRepository;
     }
 
     public ServiceResult addBook(Book book) {
@@ -67,12 +68,36 @@ public class LibraryManager {
         if (member == null) {
             return new ServiceResult(false, "Member with membership number " + membershipNumber + " not found.");
         }
-        if (!member.getBorrowedBooks().contains(book)) {
+        if (member.getBorrowedBooks().contains(book)) {
             book.setAvailable(true);
             member.getBorrowedBooks().remove(book);
-            return new ServiceResult(false, "Member with membership number " + membershipNumber + " does not have this book.");
+            return new ServiceResult(true, "Member with membership number " + membershipNumber + " does not have this book.");
         }
 
-        return new ServiceResult(true, "Book with ISBN " + isbn + " returned to library.");
+        return new ServiceResult(false, "Book with ISBN " + isbn + " returned to library.");
+    }
+
+    public List<Book> getAllBooks() {
+        return bookRepository.getAllBooks();
+    }
+
+    public List<Member> getAllMembers() {
+        return memberRepository.getAllMembers();
+    }
+
+    public void loadInitialData() {
+        List<Book> loadedBooks = util.FileUtil.readBooksFromFile();
+        List<Member> loadedMembers = util.FileUtil.readMembersFromFile();
+
+        for (Book b : loadedBooks) bookRepository.addBook(b);
+        for (Member m : loadedMembers) memberRepository.addMember(m);
+
+        System.out.println("⚙️ System loaded from database files.");
+    }
+
+    public void saveSystemData() {
+        util.FileUtil.writeBooksToFile(bookRepository.getAllBooks());
+        util.FileUtil.writeMembersToFile(memberRepository.getAllMembers());
+        System.out.println("💾 System data successfully saved to TXT files.");
     }
 }

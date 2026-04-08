@@ -6,6 +6,7 @@ import model.Member;
 import service.LibraryManager;
 
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleMenu {
@@ -20,23 +21,23 @@ public class ConsoleMenu {
 
     public void startMenu() {
         System.out.println("Welcome to the Library Management System!");
-        //libraryManager.startApplication();
+
+        libraryManager.loadInitialData();
 
         boolean keepRunning = true;
 
         while (keepRunning) {
-            for (int i = 1; i <= 3; i++) {
-                System.out.println();
-            }
-
             System.out.println("\n╔════════════════════════════════════════╗");
             System.out.println("║       LIBRARY MANAGEMENT SYSTEM        ║");
             System.out.println("╠════════════════════════════════════════╣");
             System.out.println("║                                        ║");
-            System.out.println("║  [1] Add New Book/Member               ║");
+            System.out.println("║  [1] Add New Book                      ║");
             System.out.println("║  [2] Register New Member               ║");
             System.out.println("║  [3] Lend a Book                       ║");
             System.out.println("║  [4] Return a Book                     ║");
+            System.out.println("║  [5] List All Books                    ║");
+            System.out.println("║  [6] List All Members                  ║");
+            System.out.println("║  [7] Save System Data                  ║");
             System.out.println("║                                        ║");
             System.out.println("║  [0] Exit System                       ║");
             System.out.println("╚════════════════════════════════════════╝");
@@ -64,6 +65,7 @@ public class ConsoleMenu {
                             System.out.println("❌ " + result.getMessage());
                         }
                         break;
+
                     case 2:
                         System.out.println("\n--- REGISTER NEW MEMBER ---");
 
@@ -83,18 +85,80 @@ public class ConsoleMenu {
                             System.out.println("❌ " + memberResult.getMessage());
                         }
                         break;
+
                     case 3:
                         System.out.println("\n--- LENDING A BOOK ---");
 
+                        String lendIsbn = inputHelper.getString("Enter Book ISBN");
+                        String lendMemberId = inputHelper.getString("Enter Membership Number");
 
+                        ServiceResult lendResult = libraryManager.lendBook(lendIsbn, lendMemberId);
+
+                        if (lendResult.isSuccess()) {
+                            System.out.println("✅ " + lendResult.getMessage());
+                        } else {
+                            System.out.println("❌ " + lendResult.getMessage());
+                        }
                         break;
+
                     case 4:
-                        System.out.println("Returning a book...");
+                        System.out.println("\n--- RETURNING A BOOK ---");
+
+                        String returnIsbn = inputHelper.getString("Enter Book ISBN");
+                        String returnMemberId = inputHelper.getString("Enter Membership Number");
+
+                        ServiceResult returnResult = libraryManager.returnBook(returnIsbn, returnMemberId);
+
+                        if (returnResult.isSuccess()) {
+                            System.out.println("✅ " + returnResult.getMessage());
+                        } else {
+                            System.out.println("❌ " + returnResult.getMessage());
+                        }
                         break;
+
+                    case 5:
+                        System.out.println("\n--- REGISTERED BOOKS ---");
+
+                        List<Book> books = libraryManager.getAllBooks();
+                        if (books.isEmpty()) {
+                            System.out.println("No books registered.");
+                        } else {
+                            for (Book b : books) {
+                                System.out.println("ISBN: " + b.getIsbn() + " | Title: " + b.getTitle() +
+                                        " | Author: " + b.getAuthor() + " | Available: " + b.isAvailable());
+                            }
+                        }
+                        break;
+
+                    case 6:
+                        System.out.println("\n--- REGISTERED MEMBERS ---");
+
+                        List<Member> members = libraryManager.getAllMembers();
+                        if (members.isEmpty()) {
+                            System.out.println("No members registered.");
+                        } else {
+                            for (Member m : members) {
+                                System.out.println("ID: " + m.getId() + " | Membership Number: " + m.getMembershipNumber() +
+                                        " | Name: " + m.getFirstName() + " " + m.getLastName());
+                            }
+                        }
+                        break;
+
+                    case 7:
+                        System.out.println("\n--- SAVE SYSTEM DATA ---");
+
+                        libraryManager.saveSystemData();
+                        break;
+
                     case 0:
+                        System.out.println("Saving data before exiting...");
+
+                        libraryManager.saveSystemData();
+                        System.out.println("Exiting the system. Goodbye!");
                         keepRunning = false;
                         System.out.println("Exiting the system...");
                         break;
+
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
