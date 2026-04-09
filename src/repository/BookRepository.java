@@ -3,7 +3,9 @@ package repository;
 import model.Book;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class BookRepository {
     private List<Book> bookList;
@@ -17,15 +19,13 @@ public class BookRepository {
     }
 
     public List<Book> getAllBooks() {
-        return bookList;
+        return Collections.unmodifiableList(bookList);
     }
 
-    public Book getBookByIsbn(String isbn) {
-        for (Book book : bookList) {
-            if (book.getIsbn().equals(isbn)) {
-                return book;
-            }
-        }
-        return null;
+    public Optional<Book> getBookByIsbn(String isbn) {
+        return bookList.stream().filter(book -> book.getIsbn().equals(isbn)).findFirst();
+    }
+    public void clearAll() {
+        this.bookList.clear();
     }
 }
