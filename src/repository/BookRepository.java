@@ -25,6 +25,7 @@ public class BookRepository {
     public Optional<Book> getBookByIsbn(String isbn) {
         return bookList.stream().filter(book -> book.getIsbn().equals(isbn)).findFirst();
     }
+
     public void clearAll() {
         this.bookList.clear();
     }

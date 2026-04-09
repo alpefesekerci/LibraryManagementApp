@@ -6,7 +6,6 @@ import model.Member;
 import service.LibraryManager;
 
 import java.util.List;
-import java.util.ArrayList;
 
 public class ConsoleMenu {
     private final LibraryManager libraryManager;
@@ -47,13 +46,13 @@ public class ConsoleMenu {
                 case 1:
                     System.out.println("\n--- ADD NEW BOOK ---");
 
-                    String isbn = inputHelper.readString("Enter Book ISBN");
+                    String isbn = inputHelper.readIsbn("Enter Book ISBN");
                     String title = inputHelper.readString("Enter Book title");
-                    String author = inputHelper.readString("Enter Author Name");
+                    String author = inputHelper.readName("Enter Author Name");
                     int pageCount = inputHelper.readPositiveInt("Enter Page Count");
 
                     Book book = new Book(isbn, title, author, pageCount);
-                    ServiceResult result = libraryManager.addBook(book);
+                    ServiceResult<Void> result = libraryManager.addBook(book);
 
                     printResult(result);
                     inputHelper.pressEnterToContinue();
@@ -62,12 +61,12 @@ public class ConsoleMenu {
                 case 2:
                     System.out.println("\n--- REGISTER NEW MEMBER ---");
 
-                    int id = inputHelper.readInt("Enter Member ID");
-                    String firstName = inputHelper.readString("Enter First Name");
-                    String lastName = inputHelper.readString("Enter Last Name");
+                    int id = inputHelper.readPositiveInt("Enter Member ID");
+                    String firstName = inputHelper.readName("Enter First Name");
+                    String lastName = inputHelper.readName("Enter Last Name");
 
                     Member member = new Member(id, firstName, lastName);
-                    ServiceResult memberResult = libraryManager.registerMember(member);
+                    ServiceResult<Void> memberResult = libraryManager.registerMember(member);
 
                     printResult(memberResult);
                     inputHelper.pressEnterToContinue();
@@ -78,12 +77,7 @@ public class ConsoleMenu {
 
                     int lendMemberId = inputHelper.readPositiveInt("Enter Member ID");
 
-                    List<Book> availableBooks = new ArrayList<>();
-                    for (Book b : libraryManager.getAllBooks()) {
-                        if (b.isAvailable()) {
-                            availableBooks.add(b);
-                        }
-                    }
+                    List<Book> availableBooks = libraryManager.getAvailableBooks();
 
                     if (availableBooks.isEmpty()) {
                         System.out.println("❌ No books available to lend right now.");
@@ -92,7 +86,7 @@ public class ConsoleMenu {
                         printBookTable(availableBooks);
 
                         String lendIsbn = inputHelper.readString("Enter Book ISBN to lend");
-                        ServiceResult lendBookResult = libraryManager.lendBook(lendIsbn, lendMemberId);
+                        ServiceResult<Void> lendBookResult = libraryManager.lendBook(lendIsbn, lendMemberId);
                         printResult(lendBookResult);
                     }
                     inputHelper.pressEnterToContinue();
@@ -120,7 +114,7 @@ public class ConsoleMenu {
                         printBookTable(returnMember.getBorrowedBooks());
 
                         String returnIsbn = inputHelper.readString("Enter Book ISBN to return");
-                        ServiceResult returnBookResult = libraryManager.returnBook(returnIsbn, returnMemberId);
+                        ServiceResult<Void> returnBookResult = libraryManager.returnBook(returnIsbn, returnMemberId);
                         printResult(returnBookResult);
                     }
                     inputHelper.pressEnterToContinue();
@@ -161,13 +155,7 @@ public class ConsoleMenu {
                     System.out.println("\n--- SEARCH A BOOK ---");
 
                     String keyword = inputHelper.readString("Enter Title or Author to search").toLowerCase();
-                    List<Book> foundBooks = new ArrayList<>();
-
-                    for (Book b : libraryManager.getAllBooks()) {
-                        if (b.getTitle().toLowerCase().contains(keyword) || b.getAuthor().toLowerCase().contains(keyword)) {
-                            foundBooks.add(b);
-                        }
-                    }
+                    List<Book> foundBooks = libraryManager.searchBooks(keyword);
 
                     if (foundBooks.isEmpty()) {
                         System.out.println("❌ No books found matching: " + keyword);
@@ -187,12 +175,12 @@ public class ConsoleMenu {
                     break;
 
                 default:
-                    throw new IllegalStateException("Sistem hatası: Beklenmeyen menü seçimi (" + choice + "). Lütfen sistem yöneticisine başvurun.");
+                    throw new IllegalStateException("System Error: Unexpected Menu Choice (" + choice + ").");
             }
         }
     }
 
-    private void printResult(ServiceResult result) {
+    private void printResult(ServiceResult<?> result) {
         if (result.isSuccess()) {
             System.out.println("✅ " + result.getMessage());
         } else {

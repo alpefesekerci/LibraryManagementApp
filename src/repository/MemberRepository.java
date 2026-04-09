@@ -26,6 +26,7 @@ public class MemberRepository {
     public Optional<Member> getMemberById(int id) {
         return memberList.stream().filter(member -> member.getId() == id).findFirst();
     }
+
     public void clearAll() {
         this.memberList.clear();
     }

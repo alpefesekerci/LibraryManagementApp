@@ -66,7 +66,7 @@ public class ConsoleInputHelper {
         while (true) {
             System.out.println("➤ " + prompt + ": ");
             String value = scanner.nextLine().trim();
-            if (!value.isEmpty()) {
+            if (value.isEmpty()) {
                 System.out.println("❌ Input cannot be empty. Please enter a valid text.");
             } else {
                 return value;
@@ -78,10 +78,25 @@ public class ConsoleInputHelper {
         while (true) {
             System.out.println("➤ " + prompt + ": ");
             String value = scanner.nextLine().trim();
-            if (!value.isEmpty()) {
+            if (value.isEmpty()) {
                 System.out.println("❌ Input cannot be empty. Please enter a valid text.");
             } else if (!value.matches("^[a-zA-ZçÇğĞıİöÖşŞüÜ\\s'-]+$")) {
                 System.out.println("❌ Invalid input! Names can only contain letters, spaces, hyphens (-), and apostrophes (').");
+            } else {
+                return value;
+            }
+        }
+    }
+
+    public String readIsbn(String prompt) {
+        while (true) {
+            System.out.println("➤ " + prompt + ": ");
+            String value = scanner.nextLine().trim();
+
+            if (value.isEmpty()) {
+                System.out.println("❌ Input cannot be empty. Please enter a valid ISBN.");
+            } else if (!value.matches("^[0-9Xx-]+$")) {
+                System.out.println("❌ Invalid input! ISBN can only contain numbers, hyphens (-), and the letter X.");
             } else {
                 return value;
             }

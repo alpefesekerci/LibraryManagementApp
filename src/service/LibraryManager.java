@@ -8,6 +8,7 @@ import repository.MemberRepository;
 import util.FileUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LibraryManager {
     private final BookRepository bookRepository;
@@ -100,8 +101,12 @@ public class LibraryManager {
     }
 
     public List<Book> searchBooks(String keyword) {
+        java.util.Locale trLocale = new java.util.Locale("tr", "TR");
         String lowerCaseKeyword = keyword.toLowerCase();
-        return bookRepository.getAllBooks().stream().filter(book -> book.getTitle().toLowerCase().contains(lowerCaseKeyword)).toList();
+        return bookRepository.getAllBooks().stream()
+                .filter(book -> book.getTitle().toLowerCase(trLocale).contains(lowerCaseKeyword) ||
+                        book.getAuthor().toLowerCase(trLocale).contains(lowerCaseKeyword))
+                .collect(Collectors.toList());
     }
 
     public void loadInitialData() {
