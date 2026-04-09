@@ -5,6 +5,7 @@ import model.Book;
 import model.Member;
 import repository.BookRepository;
 import repository.MemberRepository;
+
 import java.util.List;
 
 public class LibraryManager {
@@ -39,16 +40,25 @@ public class LibraryManager {
         return new ServiceResult(true, "Member " + member.getFirstName() + " " + member.getLastName() + " registered successfully.");
     }
 
+    private ServiceResult validateBookAndMember(String isbn, int memberId) {
+        if (bookRepository.getBookByIsbn(isbn) == null) {
+            return new ServiceResult(false, "Book with ISBN " + isbn + " not found.");
+        }
+        if (memberRepository.getMemberById(memberId) == null) {
+            return new ServiceResult(false, "Member with ID " + memberId + " not found.");
+        }
+        return new ServiceResult(true, null);
+    }
+
     public ServiceResult lendBook(String isbn, int memberId) {
+        ServiceResult validationResult = validateBookAndMember(isbn, memberId);
+        if (!validationResult.isSuccess()) {
+            return validationResult;
+        }
+
         Book book = bookRepository.getBookByIsbn(isbn);
         Member member = memberRepository.getMemberById(memberId);
 
-        if (book == null) {
-            return new ServiceResult(false, "Book with ISBN " + isbn + " not found.");
-        }
-        if (member == null) {
-            return new ServiceResult(false, "Member with ID " + memberId + " not found.");
-        }
         if (!book.isAvailable()) {
             return new ServiceResult(false, "Book with ISBN " + isbn + " is not available.");
         }
@@ -59,15 +69,14 @@ public class LibraryManager {
     }
 
     public ServiceResult returnBook(String isbn, int memberId) {
+        ServiceResult validationResult = validateBookAndMember(isbn, memberId);
+        if (!validationResult.isSuccess()) {
+            return validationResult;
+        }
+
         Book book = bookRepository.getBookByIsbn(isbn);
         Member member = memberRepository.getMemberById(memberId);
 
-        if (book == null) {
-            return new ServiceResult(false, "Book with ISBN " + isbn + " not found.");
-        }
-        if (member == null) {
-            return new ServiceResult(false, "Member with ID " + memberId + " not found.");
-        }
         if (member.getBorrowedBooks().contains(book)) {
             book.setAvailable(true);
             member.getBorrowedBooks().remove(book);
@@ -99,5 +108,11 @@ public class LibraryManager {
         util.FileUtil.writeBooksToFile(bookRepository.getAllBooks());
         util.FileUtil.writeMembersToFile(memberRepository.getAllMembers());
         System.out.println("💾 System data successfully saved to TXT files.");
+    }
+
+    public void clearSystemData() {
+        bookRepository.getAllBooks().clear();
+        memberRepository.getAllMembers().clear();
+        saveSystemData();
     }
 }

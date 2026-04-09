@@ -5,12 +5,10 @@ import model.Book;
 import model.Member;
 import service.LibraryManager;
 
-import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class ConsoleMenu {
-    private final Scanner scanner = new Scanner(System.in);
     private final LibraryManager libraryManager;
     private final ConsoleInputHelper inputHelper;
 
@@ -38,155 +36,162 @@ public class ConsoleMenu {
             System.out.println("║  [5] List All Books                    ║");
             System.out.println("║  [6] List All Members                  ║");
             System.out.println("║  [7] Save System Data                  ║");
+            System.out.println("║  [8] Search a Book                     ║");
             System.out.println("║                                        ║");
             System.out.println("║  [0] Exit System                       ║");
             System.out.println("╚════════════════════════════════════════╝");
-            System.out.print("➤ Please enter your choice: ");
 
-            try {
-                int choice = scanner.nextInt();
-                scanner.nextLine();
+            int choice = inputHelper.readInt("Please enter your choice", 0, 8);
 
-                switch (choice) {
-                    case 1:
-                        System.out.println("\n--- ADD NEW BOOK ---");
+            switch (choice) {
+                case 1:
+                    System.out.println("\n--- ADD NEW BOOK ---");
 
-                        String isbn = inputHelper.getString("Enter Book ISBN");
-                        String title = inputHelper.getString("Enter Book title");
-                        String author = inputHelper.getString("Enter Author Name");
-                        int pageCount = inputHelper.getInt("Enter Page Count");
+                    String isbn = inputHelper.readString("Enter Book ISBN");
+                    String title = inputHelper.readString("Enter Book title");
+                    String author = inputHelper.readString("Enter Author Name");
+                    int pageCount = inputHelper.readPositiveInt("Enter Page Count");
 
-                        Book book = new Book(isbn, title, author, pageCount);
-                        ServiceResult result = libraryManager.addBook(book);
+                    Book book = new Book(isbn, title, author, pageCount);
+                    ServiceResult result = libraryManager.addBook(book);
 
-                        printResult(result);
+                    printResult(result);
+                    inputHelper.pressEnterToContinue();
+                    break;
 
-                        /*if (result.isSuccess()) {
-                            System.out.println("✅ " + result.getMessage());
-                        } else {
-                            System.out.println("❌ " + result.getMessage());
-                        }*/
-                        break;
+                case 2:
+                    System.out.println("\n--- REGISTER NEW MEMBER ---");
 
-                    case 2:
-                        System.out.println("\n--- REGISTER NEW MEMBER ---");
+                    int id = inputHelper.readInt("Enter Member ID");
+                    String firstName = inputHelper.readString("Enter First Name");
+                    String lastName = inputHelper.readString("Enter Last Name");
 
-                        int id = inputHelper.getInt("Enter Member ID");
-                        String firstName = inputHelper.getString("Enter First Name");
-                        String lastName = inputHelper.getString("Enter Last Name");
+                    Member member = new Member(id, firstName, lastName);
+                    ServiceResult memberResult = libraryManager.registerMember(member);
 
-                        Member member = new Member(id, firstName, lastName);
-                        ServiceResult memberResult = libraryManager.registerMember(member);
+                    printResult(memberResult);
+                    inputHelper.pressEnterToContinue();
+                    break;
 
-                        printResult(memberResult);
+                case 3:
+                    System.out.println("\n--- LENDING A BOOK ---");
 
-                        /*if (memberResult.isSuccess()) {
-                            System.out.println("✅ " + memberResult.getMessage());
-                        } else {
-                            System.out.println("❌ " + memberResult.getMessage());
-                        }*/
-                        break;
+                    int lendMemberId = inputHelper.readPositiveInt("Enter Member ID");
 
-                    case 3:
-                        System.out.println("\n--- LENDING A BOOK ---");
-
-                        String lendIsbn = inputHelper.getString("Enter Book ISBN");
-                        int lendMemberId = inputHelper.getInt("Enter Member ID");
-
-                        ServiceResult lendResult = libraryManager.lendBook(lendIsbn, lendMemberId);
-
-                        printResult(lendResult);
-
-                        /*if (lendResult.isSuccess()) {
-                            System.out.println("✅ " + lendResult.getMessage());
-                        } else {
-                            System.out.println("❌ " + lendResult.getMessage());
-                        }*/
-                        break;
-
-                    case 4:
-                        System.out.println("\n--- RETURNING A BOOK ---");
-
-                        String returnIsbn = inputHelper.getString("Enter Book ISBN");
-                        int returnMemberId = inputHelper.getInt("Enter Member ID");
-
-                        ServiceResult returnResult = libraryManager.returnBook(returnIsbn, returnMemberId);
-
-                        printResult(returnResult);
-
-                        /*if (returnResult.isSuccess()) {
-                            System.out.println("✅ " + returnResult.getMessage());
-                        } else {
-                            System.out.println("❌ " + returnResult.getMessage());
-                        }*/
-                        break;
-
-                    case 5:
-                        System.out.println("\n--- REGISTERED BOOKS ---");
-
-                        List<Book> books = libraryManager.getAllBooks();
-                        if (books.isEmpty()) {
-                            System.out.println("No books registered.");
-                        } else {
-                            System.out.println("----------------------------------------------------------------------------------");
-                            System.out.printf("| %-10s | %-25s | %-20s | %-6s | %-9s |%n", "ISBN", "TITLE", "AUTHOR", "PAGES", "AVAILABLE");
-                            System.out.println("----------------------------------------------------------------------------------");
-                            for (Book b : books) {
-                                System.out.printf("| %-10s | %-25s | %-20s | %-6d | %-9s |%n",
-                                        b.getIsbn(),
-                                        truncate(b.getTitle(), 25),
-                                        truncate(b.getAuthor(), 20),
-                                        b.getPageCount(),
-                                        (b.isAvailable() ? "Yes" : "No"));
-                            }
-                            System.out.println("----------------------------------------------------------------------------------");
+                    List<Book> availableBooks = new ArrayList<>();
+                    for (Book b : libraryManager.getAllBooks()) {
+                        if (b.isAvailable()) {
+                            availableBooks.add(b);
                         }
-                        break;
+                    }
 
-                    case 6:
-                        System.out.println("\n--- REGISTERED MEMBERS ---");
+                    if (availableBooks.isEmpty()) {
+                        System.out.println("❌ No books available to lend right now.");
+                    } else {
+                        System.out.println("\n[Available Books in Library]:");
+                        printBookTable(availableBooks);
 
-                        List<Member> members = libraryManager.getAllMembers();
-                        if (members.isEmpty()) {
-                            System.out.println("No members registered.");
-                        } else {
-                            System.out.println("-------------------------------------------------------------");
-                            System.out.printf("| %-5s | %-15s | %-15s | %-10s |%n", "ID", "FIRST NAME", "LAST NAME", "BOOKS HELD");
-                            System.out.println("-------------------------------------------------------------");
-                            for (Member m : members) {
-                                System.out.printf("| %-5d | %-15s | %-15s | %-10d |%n",
-                                        m.getId(),
-                                        truncate(m.getFirstName(), 15),
-                                        truncate(m.getLastName(), 15),
-                                        m.getBorrowedBooks().size());
-                            }
-                            System.out.println("-------------------------------------------------------------");
+                        String lendIsbn = inputHelper.readString("Enter Book ISBN to lend");
+                        ServiceResult lendBookResult = libraryManager.lendBook(lendIsbn, lendMemberId);
+                        printResult(lendBookResult);
+                    }
+                    inputHelper.pressEnterToContinue();
+                    break;
+
+                case 4:
+                    System.out.println("\n--- RETURNING A BOOK ---");
+
+                    int returnMemberId = inputHelper.readPositiveInt("Enter Member ID");
+
+                    Member returnMember = null;
+                    for (Member m : libraryManager.getAllMembers()) {
+                        if (m.getId() == returnMemberId) {
+                            returnMember = m;
+                            break;
                         }
-                        break;
+                    }
 
-                    case 7:
-                        System.out.println("\n--- SAVE SYSTEM DATA ---");
+                    if (returnMember == null) {
+                        System.out.println("❌ Member with ID " + returnMemberId + " not found.");
+                    } else if (returnMember.getBorrowedBooks().isEmpty()) {
+                        System.out.println("❌ This member has no borrowed books.");
+                    } else {
+                        System.out.println("\n[Books currently borrowed by " + returnMember.getFirstName() + "]:");
+                        printBookTable(returnMember.getBorrowedBooks());
 
-                        libraryManager.saveSystemData();
-                        break;
+                        String returnIsbn = inputHelper.readString("Enter Book ISBN to return");
+                        ServiceResult returnBookResult = libraryManager.returnBook(returnIsbn, returnMemberId);
+                        printResult(returnBookResult);
+                    }
+                    inputHelper.pressEnterToContinue();
+                    break;
 
-                    case 0:
-                        System.out.println("Saving data before exiting...");
+                case 5:
+                    System.out.println("\n--- REGISTERED BOOKS ---");
 
-                        libraryManager.saveSystemData();
-                        System.out.println("Exiting the system. Goodbye!");
-                        keepRunning = false;
-                        break;
+                    List<Book> books = libraryManager.getAllBooks();
+                    if (books.isEmpty()) {
+                        System.out.println("No books registered.");
+                    } else {
+                        printBookTable(books);
+                    }
+                    inputHelper.pressEnterToContinue();
+                    break;
 
-                    default:
-                        System.out.println("❌ Invalid choice. Please try again.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("❌ Invalid input. Please enter a number.");
-                scanner.nextLine();
+                case 6:
+                    System.out.println("\n--- REGISTERED MEMBERS ---");
+
+                    List<Member> members = libraryManager.getAllMembers();
+                    if (members.isEmpty()) {
+                        System.out.println("No members registered.");
+                    } else {
+                        printMemberTable(members);
+                    }
+                    inputHelper.pressEnterToContinue();
+                    break;
+
+                case 7:
+                    System.out.println("\n--- SAVE SYSTEM DATA ---");
+
+                    libraryManager.saveSystemData();
+                    inputHelper.pressEnterToContinue();
+                    break;
+
+                case 8:
+                    System.out.println("\n--- SEARCH A BOOK ---");
+
+                    String keyword = inputHelper.readString("Enter Title or Author to search").toLowerCase();
+                    List<Book> foundBooks = new ArrayList<>();
+
+                    for (Book b : libraryManager.getAllBooks()) {
+                        if (b.getTitle().toLowerCase().contains(keyword) || b.getAuthor().toLowerCase().contains(keyword)) {
+                            foundBooks.add(b);
+                        }
+                    }
+
+                    if (foundBooks.isEmpty()) {
+                        System.out.println("❌ No books found matching: " + keyword);
+                    } else {
+                        System.out.println("\n[Search Results]:");
+                        printBookTable(foundBooks);
+                    }
+                    inputHelper.pressEnterToContinue();
+                    break;
+
+                case 0:
+                    System.out.println("Saving data before exiting...");
+
+                    libraryManager.saveSystemData();
+                    System.out.println("Exiting the system. Goodbye!");
+                    keepRunning = false;
+                    break;
+
+                default:
+                    throw new IllegalStateException("Sistem hatası: Beklenmeyen menü seçimi (" + choice + "). Lütfen sistem yöneticisine başvurun.");
             }
         }
     }
+
     private void printResult(ServiceResult result) {
         if (result.isSuccess()) {
             System.out.println("✅ " + result.getMessage());
@@ -194,6 +199,29 @@ public class ConsoleMenu {
             System.out.println("❌ " + result.getMessage());
         }
     }
+
+    private void printBookTable(List<Book> books) {
+        System.out.println("----------------------------------------------------------------------------------");
+        System.out.printf("| %-10s | %-25s | %-20s | %-6s | %-9s |%n", "ISBN", "TITLE", "AUTHOR", "PAGES", "AVAILABLE");
+        System.out.println("----------------------------------------------------------------------------------");
+        for (Book book : books) {
+            System.out.printf("| %-10s | %-25s | %-20s | %-6d | %-9s |%n",
+                    book.getIsbn(), truncate(book.getTitle(), 25), truncate(book.getAuthor(), 20), book.getPageCount(), book.isAvailable());
+        }
+        System.out.println("----------------------------------------------------------------------------------");
+    }
+
+    private void printMemberTable(List<Member> members) {
+        System.out.println("----------------------------------------------------------------------------------");
+        System.out.printf("| %-10s | %-25s | %-20s | %-6s |%n", "ID", "FIRST NAME", "LAST NAME", "BORROWED BOOKS");
+        System.out.println("----------------------------------------------------------------------------------");
+        for (Member member : members) {
+            System.out.printf("| %-10d | %-25s | %-20s | %-6d |%n",
+                    member.getId(), truncate(member.getFirstName(), 25), truncate(member.getLastName(), 20), member.getBorrowedBooks().size());
+        }
+        System.out.println("----------------------------------------------------------------------------------");
+    }
+
     private String truncate(String text, int maxLength) {
         if (text.length() <= maxLength) return text;
         return text.substring(0, maxLength - 3) + "...";
