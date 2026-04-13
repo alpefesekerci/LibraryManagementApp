@@ -62,8 +62,7 @@ public class FileUtil {
                     if (data.length == 4 && !data[3].trim().isEmpty()) {
                         String[] isbns = data[3].split(";");
                         for (String isbn : isbns) {
-                            // "Ambiguous" hatasını çözmek için açık lambda yazıldı:
-                            bookRepository.getBookByIsbn(isbn).ifPresent(book -> member.getBorrowedBooks().add(book));
+                            bookRepository.getBookByIsbn(isbn).ifPresent(member::addBorrowedBook);
                         }
                     }
                     members.add(member);

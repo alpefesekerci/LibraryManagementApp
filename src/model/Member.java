@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Member extends Person {
@@ -12,11 +13,15 @@ public class Member extends Person {
     }
 
     public List<Book> getBorrowedBooks() {
-        return borrowedBooks;
+        return Collections.unmodifiableList(borrowedBooks);
     }
 
-    public void setBorrowedBooks(List<Book> borrowedBooks) {
-        this.borrowedBooks = borrowedBooks;
+    public void addBorrowedBook(Book book) {
+        borrowedBooks.add(book);
+    }
+
+    public void removeBorrowedBook(Book book) {
+        borrowedBooks.remove(book);
     }
 
     @Override

@@ -33,11 +33,6 @@ public class LibraryManager {
             return new ServiceResult<>(false, "Member with ID " + member.getId() + " already exists.");
         }
 
-        if (member.getFirstName() == null || member.getFirstName().trim().isEmpty() ||
-                member.getLastName() == null || member.getLastName().trim().isEmpty()) {
-            return new ServiceResult<>(false, "First name and last name are required.");
-        }
-
         memberRepository.addMember(member);
         return new ServiceResult<>(true, "Member " + member.getFirstName() + " " + member.getLastName() + " registered successfully.");
     }
@@ -66,7 +61,7 @@ public class LibraryManager {
         }
 
         book.setAvailable(false);
-        member.getBorrowedBooks().add(book);
+        member.addBorrowedBook(book);
         return new ServiceResult<>(true, "Book with ISBN " + isbn + " lent to member " + member.getFirstName() + " " + member.getLastName() + ".");
     }
 
@@ -81,7 +76,7 @@ public class LibraryManager {
 
         if (member.getBorrowedBooks().contains(book)) {
             book.setAvailable(true);
-            member.getBorrowedBooks().remove(book);
+            member.removeBorrowedBook(book);
             return new ServiceResult<>(true, "Book with ISBN " + isbn + " successfully returned by " + member.getFirstName() + ".");
         }
 
